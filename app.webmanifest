@@ -1,0 +1,13 @@
+{
+  "name": "Chess Time Management Tool",
+  "short_name": "Chess TMT",
+  "start_url": "/",
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "350x350"
+    }
+  ]
+}

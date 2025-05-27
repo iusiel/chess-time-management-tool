@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess Time Management Tool</title>
+    <link rel="manifest" href="/app.webmanifest" />
+    <link rel="icon" type="image/x-icon" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js");
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div>
+        <h1>Chess Time Management Tool</h1>
+        <p>
+          Input the minutes and increment below. For example, in a 5+3 format, 5
+          is the minutes and 3 is the increment.
+        </p>
+        <div id="input-container">
+          <input
+            type="text"
+            id="minutes"
+            class="text-input"
+            placeholder="Mins"
+            inputmode="numeric"
+          />
+          <input
+            type="text"
+            id="increment"
+            class="text-input"
+            placeholder="Inc"
+            inputmode="numeric"
+          />
+        </div>
+        <div id="results-container">
+          <p>
+            First 15 moves: <b><span id="first-15-moves"></span></b>
+          </p>
+          <p>Average time per move: <span id="average-time-per-move"></span></p>
+          <p>
+            Average time per non-critical move:
+            <b><span id="average-time-per-non-critical-move"></span></b>
+          </p>
+        </div>
+
+        <p id="explanation">
+          The logic for getting the time to use for the first 15 moves is based
+          on Botvinnik's rule, which states that for the first 15 moves, you
+          should use about 20% of your total time. <br /><br />
+
+          For the average time per move, it is to divide the total time by 40
+          moves (40 moves is the assumed average of moves in a chess match).
+          After dividing, I add the increment to get the average time per move.
+          <br /><br />
+
+          For the average time per non-critical move, I displayed 80% of the
+          average time per move. It is good practice to not always use the
+          average time per move to its limit so that you will have extra time
+          when tackling critical positions. <br /><br />
+
+          As with anything else, feel free to adjust as needed or not follow the
+          recommendations. These are just guidelines that can be used in a chess
+          match.
+        </p>
+      </div>
+    </div>
+
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        padding: 0;
+        margin: 0;
+      }
+      #container {
+        text-align: center;
+        display: grid;
+        grid-template-columns: 1fr;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        max-width: 800px;
+        margin: 2rem auto 0;
+      }
+      #input-container {
+        display: grid;
+        grid-template-columns: max-content max-content;
+        grid-template-rows: 1fr;
+        justify-content: center;
+        gap: 20px;
+      }
+      .text-input {
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        font-size: 2.5rem;
+      }
+      #results-container {
+        text-align: left;
+      }
+      #explanation {
+        text-align: left;
+      }
+    </style>
+
+    <script>
+      function computeTimeManagement() {
+        showFirst15MovesTime();
+        showAverageTimePerMove();
+        showAverageTimePerNonCriticalMove();
+        // const minutes = document.getElementById("minutes").value;
+        // const increment = document.getElementById("increment").value;
+
+        // if (minutes === "" || increment === "") {
+        //   return;
+        // }
+
+        // const first15Moves = minutes * 0.2;
+        // alert(first15Moves);
+      }
+
+      function showFirst15MovesTime() {
+        try {
+          const minutes = document.getElementById("minutes").value;
+          const percentageAllotedtoFirst15Moves = 0.2;
+          const first15Moves = minutes * 60 * percentageAllotedtoFirst15Moves;
+
+          document.getElementById("first-15-moves").innerText =
+            integerToTimeFormat(first15Moves);
+        } catch (error) {
+          console.error(error);
+          document.getElementById("first-15-moves").innerText = "N/A";
+        }
+      }
+
+      function showAverageTimePerMove() {
+        try {
+          document.getElementById("average-time-per-move").innerText =
+            integerToTimeFormat(getAverageTimePerMove());
+        } catch (error) {
+          console.error(error);
+          document.getElementById("average-time-per-move").innerText = "N/A";
+        }
+      }
+
+      function getAverageTimePerMove() {
+        const minutes = document.getElementById("minutes").value;
+        const increment = document.getElementById("increment").value;
+
+        const totalSeconds = parseInt(minutes, 10) * 60;
+        const averageNumberOfMovesPerMatch = 40;
+        const averageMoveInSeconds =
+          totalSeconds / averageNumberOfMovesPerMatch + parseInt(increment, 10);
+
+        return averageMoveInSeconds;
+      }
+
+      function integerToTimeFormat(value) {
+        const minutes = Math.floor(value / 60);
+        let seconds = value % 60;
+        seconds = Math.floor(seconds);
+        seconds = seconds.toString().padStart(2, "0");
+        return `${minutes}:${seconds}`;
+        return `${value}:00`;
+      }
+
+      function showAverageTimePerNonCriticalMove() {
+        try {
+          const averageTimePerMove = getAverageTimePerMove();
+          const timePercentageForNonCriticalMove = 0.8;
+          document.getElementById(
+            "average-time-per-non-critical-move"
+          ).innerText = integerToTimeFormat(
+            averageTimePerMove * timePercentageForNonCriticalMove
+          );
+        } catch (error) {
+          console.error(error);
+          document.getElementById(
+            "average-time-per-non-critical-move"
+          ).innerText = "N/A";
+        }
+      }
+      document
+        .getElementById("minutes")
+        .addEventListener("keydown", (event) => {
+          setTimeout(() => {
+            computeTimeManagement();
+          }, 100);
+        });
+
+      document
+        .getElementById("increment")
+        .addEventListener("keydown", (event) => {
+          setTimeout(() => {
+            computeTimeManagement();
+          }, 100);
+        });
+    </script>
+  </body>
+</html>
