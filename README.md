@@ -2,6 +2,8 @@
 
 An application that will give recommendations on how to manage your time during a chess match, given a particular time control. This application installs a service worker so it should work offline.
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/585cd474-aec5-4190-9942-d81ca9d3b613/deploy-status)](https://app.netlify.com/projects/singular-baklava-1c8c82/deploys)
+
 ## Tech stack
 
 1. JavaScript
