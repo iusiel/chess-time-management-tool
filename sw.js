@@ -1,4 +1,4 @@
-const version = "1.1";
+const version = "1.2";
 
 const addResourcesToCache = async (resources) => {
   const cache = await caches.open("pwa-assets");

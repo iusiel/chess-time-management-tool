@@ -29,6 +29,7 @@
             class="text-input"
             placeholder="Mins"
             inputmode="numeric"
+            autocomplete="off"
           />
           <input
             type="text"
@@ -36,6 +37,7 @@
             class="text-input"
             placeholder="Inc"
             inputmode="numeric"
+            autocomplete="off"
           />
         </div>
         <div id="results-container">
@@ -48,6 +50,9 @@
             <b><span id="average-time-per-non-critical-move"></span></b>
           </p>
         </div>
+
+        <h2>Common Formats</h2>
+        <div id="common-formats"></div>
 
         <p id="explanation">
           The logic for getting the time to use for the first 15 moves is based
@@ -117,22 +122,17 @@
         showFirst15MovesTime();
         showAverageTimePerMove();
         showAverageTimePerNonCriticalMove();
-        // const minutes = document.getElementById("minutes").value;
-        // const increment = document.getElementById("increment").value;
+      }
 
-        // if (minutes === "" || increment === "") {
-        //   return;
-        // }
-
-        // const first15Moves = minutes * 0.2;
-        // alert(first15Moves);
+      function getFirst15MovesToSeconds(minutes) {
+        const percentageAllotedtoFirst15Moves = 0.2;
+        return minutes * 60 * percentageAllotedtoFirst15Moves;
       }
 
       function showFirst15MovesTime() {
         try {
           const minutes = document.getElementById("minutes").value;
-          const percentageAllotedtoFirst15Moves = 0.2;
-          const first15Moves = minutes * 60 * percentageAllotedtoFirst15Moves;
+          const first15Moves = getFirst15MovesToSeconds(minutes);
 
           document.getElementById("first-15-moves").innerText =
             integerToTimeFormat(first15Moves);
@@ -144,18 +144,17 @@
 
       function showAverageTimePerMove() {
         try {
+          const minutes = document.getElementById("minutes").value;
+          const increment = document.getElementById("increment").value;
           document.getElementById("average-time-per-move").innerText =
-            integerToTimeFormat(getAverageTimePerMove());
+            integerToTimeFormat(getAverageTimePerMove(minutes, increment));
         } catch (error) {
           console.error(error);
           document.getElementById("average-time-per-move").innerText = "N/A";
         }
       }
 
-      function getAverageTimePerMove() {
-        const minutes = document.getElementById("minutes").value;
-        const increment = document.getElementById("increment").value;
-
+      function getAverageTimePerMove(minutes, increment) {
         const totalSeconds = parseInt(minutes, 10) * 60;
         const averageNumberOfMovesPerMatch = 40;
         const averageMoveInSeconds =
@@ -170,18 +169,25 @@
         seconds = Math.floor(seconds);
         seconds = seconds.toString().padStart(2, "0");
         return `${minutes}:${seconds}`;
-        return `${value}:00`;
+      }
+
+      function getAverageTimerPerNonCriticalMove(minutes, increment) {
+        const averageTimePerMove = getAverageTimePerMove(minutes, increment);
+        const timePercentageForNonCriticalMove = 0.8;
+        return averageTimePerMove * timePercentageForNonCriticalMove;
       }
 
       function showAverageTimePerNonCriticalMove() {
         try {
-          const averageTimePerMove = getAverageTimePerMove();
-          const timePercentageForNonCriticalMove = 0.8;
+          const minutes = document.getElementById("minutes").value;
+          const increment = document.getElementById("increment").value;
+          const timeForNonCriticalMove = getAverageTimerPerNonCriticalMove(
+            minutes,
+            increment
+          );
           document.getElementById(
             "average-time-per-non-critical-move"
-          ).innerText = integerToTimeFormat(
-            averageTimePerMove * timePercentageForNonCriticalMove
-          );
+          ).innerText = integerToTimeFormat(timeForNonCriticalMove);
         } catch (error) {
           console.error(error);
           document.getElementById(
@@ -189,6 +195,60 @@
           ).innerText = "N/A";
         }
       }
+
+      function displayCommonFormats() {
+        const formats = ["5+3", "15+10", "30+30", "45+45"];
+        let table = document.createElement("table");
+        table.setAttribute("border", "1");
+        table.setAttribute("width", "100%");
+
+        const tableHeaders = [
+          "Format",
+          "First 15 moves",
+          "Average time per move",
+          "Average time per non critical move",
+        ];
+
+        let row = document.createElement("tr");
+        tableHeaders.forEach((header) => {
+          let cell = document.createElement("th");
+          cell.style.width = "25%";
+          cell.innerText = header;
+          row.appendChild(cell);
+        });
+        table.appendChild(row);
+
+        formats.forEach((format) => {
+          const splittedParts = format.split("+");
+          const [minutes, increment] = splittedParts;
+
+          let row = document.createElement("tr");
+          let formatCell = document.createElement("td");
+          formatCell.innerText = format;
+          let first15MovesCell = document.createElement("td");
+          first15MovesCell.innerText = integerToTimeFormat(
+            getFirst15MovesToSeconds(minutes)
+          );
+          let averageTimePerMoveCell = document.createElement("td");
+          averageTimePerMoveCell.innerText = integerToTimeFormat(
+            getAverageTimePerMove(minutes, increment)
+          );
+          let averageTimePerNonCriticalMoveCell = document.createElement("td");
+          averageTimePerNonCriticalMoveCell.innerText = integerToTimeFormat(
+            getAverageTimerPerNonCriticalMove(minutes, increment)
+          );
+          row.appendChild(formatCell);
+          row.appendChild(first15MovesCell);
+          row.appendChild(averageTimePerMoveCell);
+          row.appendChild(averageTimePerNonCriticalMoveCell);
+          table.appendChild(row);
+        });
+
+        document.getElementById("common-formats").appendChild(table);
+      }
+
+      displayCommonFormats();
+
       document
         .getElementById("minutes")
         .addEventListener("keydown", (event) => {
